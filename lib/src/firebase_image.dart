@@ -54,6 +54,14 @@ class FirebaseImage extends ImageProvider<FirebaseImage> {
     return _fetchImage();
   }
 
+  /// Pre-caches an image
+  Future<void> preCache() async {
+    if (shouldCache == false) {
+      throw "Caching must be enabled to pre-cache an image.";
+    }
+    await _fetchImage();
+  }
+
   static String _getBucket(String location) {
     final uri = Uri.parse(location);
     return '${uri.scheme}://${uri.authority}';
@@ -84,14 +92,13 @@ class FirebaseImage extends ImageProvider<FirebaseImage> {
       if (localObject != null) {
         bytes = await cacheManager.localFileBytes(localObject);
         bytes ??= await cacheManager.upsertRemoteFileToCache(
-              _imageObject, maxSizeBytes);
+            _imageObject, maxSizeBytes);
       } else {
         bytes = await cacheManager.upsertRemoteFileToCache(
             _imageObject, maxSizeBytes);
       }
     } else {
-      bytes =
-          await cacheManager.remoteFileBytes(_imageObject, maxSizeBytes);
+      bytes = await cacheManager.remoteFileBytes(_imageObject, maxSizeBytes);
     }
 
     return bytes!;
@@ -127,6 +134,5 @@ class FirebaseImage extends ImageProvider<FirebaseImage> {
   int get hashCode => hashValues(_imageObject.uri, scale);
 
   @override
-  String toString() =>
-      '$runtimeType("${_imageObject.uri}", scale: $scale)';
+  String toString() => '$runtimeType("${_imageObject.uri}", scale: $scale)';
 }
